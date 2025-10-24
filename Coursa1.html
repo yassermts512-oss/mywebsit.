@@ -1,0 +1,1184 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>COURSA — Boutique</title>
+  <style>
+    :root{--accent:#1f7aec;--accent2:#ff7a59;--card:#ffffff;--bg1:#f0f7ff;--bg2:#fef7f2;--muted:#6b7280}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter, Arial, sans-serif;background:linear-gradient(90deg,var(--bg1),var(--bg2));color:#111}
+    .wrap{max-width:1100px;margin:24px auto;padding:16px}
+    header{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:rgba(255,255,255,0.9);border-radius:10px;box-shadow:0 6px 18px rgba(16,24,40,0.06)}
+    .brand{display:flex;gap:12px;align-items:center}
+    .brand .logo{font-weight:800;letter-spacing:2px;font-size:20px}
+    .supplier-line{font-size:13px;color:var(--muted);text-align:right}
+    nav{display:flex;gap:10px;align-items:center}
+    nav button{padding:8px 12px;border-radius:8px;border:1px solid rgba(0,0,0,0.06);background:white;cursor:pointer}
+    main{margin-top:18px}
+    .card{background:white;padding:16px;border-radius:10px;box-shadow:0 6px 18px rgba(16,24,40,0.04)}
+    .center{display:flex;flex-direction:column;gap:14px;align-items:center;justify-content:center;padding:30px}
+    .big-btn{padding:12px 18px;border-radius:10px;background:linear-gradient(90deg,var(--accent),#2389ff);color:white;border:none;cursor:pointer}
+    .layout{display:grid;grid-template-columns:1fr 360px;gap:18px;margin-top:18px}
+    .products{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+    .product{background:#fff;border-radius:10px;padding:12px;border:1px solid #eef2f6;display:flex;flex-direction:column;gap:8px}
+    .product .card-img-wrap{position:relative}
+    .product img{width:100%;height:160px;object-fit:cover;border-radius:8px;cursor:pointer;display:block}
+    .productThumbs{display:flex;gap:6px;margin-top:6px}
+    .productThumbs img{width:44px;height:44px;object-fit:cover;border-radius:6px;border:1px solid #eee;cursor:pointer}
+    .product h3{margin:0;font-size:16px}
+    .price{color:var(--accent2);font-weight:700}
+    .qty-controls{display:flex;gap:8px;align-items:center}
+    .small-btn{padding:6px 8px;border-radius:6px;border:1px solid #e6eef8;background:white;cursor:pointer}
+    .cart-list{display:flex;flex-direction:column;gap:8px}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:8px;border-bottom:1px solid #f1f5f9}
+    .modal{position:fixed;left:0;top:0;width:100%;height:100%;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:60}
+    .modal .panel{background:white;padding:16px;border-radius:10px;max-width:920px;width:96%;max-height:90vh;overflow:auto}
+    .modal .images{display:flex;gap:8px}
+    .thumb{width:72px;height:72px;object-fit:cover;border-radius:6px;border:1px solid #eee;cursor:pointer}
+    .zoom-img{max-width:100%;max-height:60vh;transition:transform 0.12s ease}
+    .image-stage{position:relative;height:60vh;display:flex;align-items:center;justify-content:center;overflow:hidden}
+    .image-stage img{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);max-width:100%;max-height:100%;transition:transform 0.4s ease,opacity 0.35s ease}
+    .image-slide-enter-right{transform:translate(-40%,-50%) scale(1); opacity:0}
+    .image-slide-enter-left{transform:translate(-60%,-50%) scale(1); opacity:0}
+    .image-slide-active{transform:translate(-50%,-50%) scale(1); opacity:1}
+    .image-arrow{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.9);border-radius:30px;padding:8px 10px;border:0;cursor:pointer;box-shadow:0 6px 18px rgba(2,6,23,0.08)}
+    .image-arrow.left{left:8px}
+    .image-arrow.right{right:8px}
+    .image-reset{position:absolute;left:50%;transform:translateX(-50%);bottom:12px;z-index:80}
+    @media(max-width:900px){.layout{grid-template-columns:1fr;}.products{grid-template-columns:repeat(1,minmax(0,1fr));}.product img{height:220px}.wrap{padding:12px}}
+    .muted{color:var(--muted);font-size:13px}
+    .row{display:flex;gap:8px;align-items:center}
+    .input,button.input{padding:8px;border-radius:8px;border:1px solid #e6eef8;background:white}
+    .danger{background:#fee2e2;color:#991b1b}
+    .success{background:#ecfdf5;color:#065f46}
+    .badge{background:var(--accent2);color:white;padding:4px 8px;border-radius:999px;font-size:12px}
+    /* small style for language buttons */
+    .lang-buttons{display:flex;gap:8px;justify-content:center;margin-top:8px}
+    .lang-btn{padding:6px 10px;border-radius:8px;border:1px solid rgba(0,0,0,0.08);background:white;cursor:pointer}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div style="width:52px;height:52px;border-radius:10px;background:linear-gradient(180deg,#fff,#f2f9ff);display:flex;align-items:center;justify-content:center;font-weight:800" id="brandLogoLetter">C</div>
+        <div>
+          <div class="logo" id="brandLogo">COURSA</div>
+          <div class="muted" id="brandSub">Marketplace</div>
+        </div>
+      </div>
+      <div class="supplier-line" id="supplierHeader">Fournisseur: Kamel Abiyad — 05 40 14 80 69</div>
+    </header>
+
+    <main id="mainArea">
+      <!-- initial screen (only connect + supplier link visible) -->
+      <section id="initialScreen" class="card center">
+        <h2 id="welcomeTitle">Bienvenue sur Coursa</h2>
+        <p class="muted" id="welcomeSub">Connectez-vous pour commencer</p>
+
+        <div class="lang-buttons" style="width:100%;justify-content:center">
+          <button class="lang-btn" id="langFrBtn" onclick="setLanguage('fr')">Français</button>
+          <button class="lang-btn" id="langArBtn" onclick="setLanguage('ar')">عربي</button>
+        </div>
+
+        <div class="row" style="margin-top:6px">
+          <button class="big-btn" id="connectBtn" onclick="openClientAuth()">🔑 Connecter</button>
+          <button class="input" id="supplierBtnInit" onclick="openSupplierLogin()">⚙️ Fournisseur</button>
+        </div>
+        <div class="muted" style="margin-top:8px" id="supplierProtected">(L'espace fournisseur est protégé par mot de passe)</div>
+        <div style="margin-top:18px;text-align:center" id="pendingNotice"></div>
+      </section>
+
+      <!-- home layout (hidden by default) -->
+      <section id="homeScreen" style="display:none">
+        <div class="layout">
+          <div>
+            <div class="card">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                <div>
+                  <h3 id="productsTitle">Produits</h3>
+                  <div class="muted" id="productsSub">Explore les produits disponibles</div>
+                </div>
+                <div class="row">
+                  <input class="input" id="searchInput" placeholder="Rechercher..." oninput="renderProducts()">
+                  <button class="input" onclick="openSupplierLogin()" id="supplierBtnHeader">Fournisseur</button>
+                </div>
+              </div>
+
+              <div class="products" id="productsGrid"></div>
+            </div>
+          </div>
+
+          <aside>
+            <div class="card" style="margin-bottom:12px">
+              <h4 id="cartTitle">Panier</h4>
+              <div id="cartList" class="cart-list"><div class="muted">Panier vide</div></div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px"><div class="muted" id="totalLabel">Total</div><div id="cartTotal">0 DA</div></div>
+              <div style="margin-top:10px;display:flex;gap:8px">
+                <button onclick="openCartCheckout()" class="big-btn" id="orderBtn">Bon de commande</button>
+                <button class="input" onclick="clearCart()" id="clearCartBtn">Vider</button>
+              </div>
+            </div>
+
+            <!-- Mes commandes sous le panier -->
+            <div class="card" style="margin-bottom:12px" id="clientOrdersCard">
+              <h4>Mes commandes</h4>
+              <div id="clientOrdersList" class="cart-list muted">Aucune commande</div>
+            </div>
+
+            <div class="card">
+              <h4 id="accountTitle">Compte</h4>
+              <div id="accountBlock"></div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- supplier login panel -->
+      <section id="supplierLoginSection" class="card" style="display:none">
+        <h3 id="supplierLoginHeader">Connexion Fournisseur</h3>
+        <div class="row" style="margin-top:8px">
+          <input id="supplierPwd" class="input" placeholder="Mot de passe">
+          <button onclick="supplierLogin()" id="supplierEnterBtn">Entrer</button>
+          <button onclick="closeSupplierLogin()" class="input" id="supplierCancelBtn">Annuler</button>
+          <div style="margin-left:12px" id="supplierNotif"></div>
+        </div>
+      </section>
+
+      <!-- supplier dashboard -->
+      <section id="supplierPanelSection" style="display:none">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <h3 id="supplierPanelTitle">Tableau Fournisseur</h3>
+              <div class="muted" id="supplierPanelSub">Gérer clients, produits et commandes</div>
+            </div>
+            <div class="row">
+              <div class="muted" id="supplierNameDisplay">Kamel Abiyad</div>
+              <button class="input" onclick="logoutSupplier()" id="supplierLogoutBtn">Se déconnecter</button>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:12px;margin-top:14px;flex-wrap:wrap">
+            <button class="input" onclick="showSupplierTab('clients')">Clients (<span id="pendingCount">0</span>)</button>
+            <button class="input" onclick="showSupplierTab('products')">Produits</button>
+            <button class="input" onclick="showSupplierTab('orders')">Banc de commandes</button>
+          </div>
+
+          <div id="supplierTabs" style="margin-top:14px"></div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- client auth modal (persistent in DOM) -->
+  <div class="modal" id="clientAuthModal">
+    <div class="panel">
+      <h3 id="clientAuthHeader">Se connecter / Créer compte</h3>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button onclick="renderClientForm('exist')" id="haveAccountBtn">J'ai déjà un compte</button>
+        <button onclick="renderClientForm('new')" id="createAccountBtn">Créer un compte</button>
+      </div>
+      <div id="clientFormArea" style="margin-top:12px"></div>
+      <div style="margin-top:12px;text-align:right"><button onclick="closeClientForm()" id="closeClientFormBtn">Fermer</button></div>
+    </div>
+  </div>
+
+  <!-- product modal (gallery + add qty) -->
+  <div class="modal" id="productModal">
+    <div class="panel">
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="flex:1">
+          <div id="productModalImages">
+            <img id="productMainImg" class="zoom-img" src="" alt="">
+            <div class="productThumbs" id="productThumbs" style="margin-top:8px"></div>
+          </div>
+        </div>
+        <div style="width:320px">
+          <h3 id="modalTitle"></h3>
+          <div class="muted" id="modalDesc"></div>
+          <div style="margin-top:12px" class="row"><button onclick="decreaseModalQty()">-</button><input id="modalQty" value="1" style="width:60px;text-align:center" class="input"><button onclick="increaseModalQty()">+</button></div>
+          <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center"><div class="price" id="modalPrice">0 DA</div><button class="big-btn" id="modalAddBtn" onclick="addFromModal()">Ajouter</button></div>
+        </div>
+      </div>
+      <div style="margin-top:12px;text-align:right"><button onclick="closeProductModal()" class="input" id="closeProductModalBtn">Fermer</button></div>
+    </div>
+  </div>
+
+  <!-- image-only modal (for clicking product image in grid) -->
+  <div class="modal" id="imageModal">
+    <div class="panel" id="imagePanel">
+      <div style="text-align:center;position:relative">
+        <div class="image-stage" id="imageStage" style="height:60vh">
+          <!-- images will be injected here -->
+        </div>
+        <button class="image-arrow left" onclick="prevImage()" aria-label="Prev">◀</button>
+        <button class="image-arrow right" onclick="nextImage()" aria-label="Next">▶</button>
+        <div style="margin-top:12px;text-align:right" class="image-reset">
+          <button onclick="resetImageZoom()" class="input">Reset</button>
+          <button onclick="closeImageModal()" class="input">Fermer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- invoice modal -->
+  <div class="modal" id="invoiceModal">
+    <div class="panel" id="invoicePanel"></div>
+  </div>
+
+  <script>
+    /* ------------------------
+       Traductions FR / AR
+       ------------------------ */
+    const TRANSLATIONS = {
+      fr: {
+        logo: "COURSA",
+        logoLetter: "C",
+        marketplace: "Marketplace",
+        supplier_line: "Fournisseur: Kamel Abiyad — 05 40 14 80 69",
+        welcome_title: "Bienvenue sur Coursa",
+        welcome_sub: "Connectez-vous pour commencer",
+        connect: "🔑 Connecter",
+        supplier: "⚙️ Fournisseur",
+        supplier_protected: "(L'espace fournisseur est protégé par mot de passe)",
+        account_registered: "Compte enregistré",
+        account_pending_description: "Votre compte ({name}) est en attente de validation par le fournisseur.",
+        products: "Produits",
+        products_sub: "Explore les produits disponibles",
+        search_placeholder: "Rechercher...",
+        cart: "Panier",
+        cart_empty: "Panier vide",
+        total: "Total",
+        order_btn: "Bon de commande",
+        clear_cart: "Vider",
+        account: "Compte",
+        no_client_connected: "Aucun client connecté",
+        client_auth_btn: "Se connecter / Créer compte",
+        client_auth_header: "Se connecter / Créer compte",
+        have_account: "J'ai déjà un compte",
+        create_account: "Créer un compte",
+        name: "Nom",
+        surname: "Prénom",
+        phone: "Téléphone",
+        location: "Localisation",
+        save: "Enregistrer",
+        login: "Se connecter",
+        supplier_login_header: "Connexion Fournisseur",
+        password: "Mot de passe",
+        enter: "Entrer",
+        cancel: "Annuler",
+        supplier_panel: "Tableau Fournisseur",
+        supplier_sub: "Gérer clients, produits et commandes",
+        clients: "Clients",
+        products_btn: "Produits",
+        orders_btn: "Banc de commandes",
+        clients_pending: "En attente",
+        clients_validated: "Validés",
+        no_clients_pending: "Aucun client en attente",
+        no_clients_validated: "Aucun client validé",
+        accept: "Accepter",
+        reject: "Refuser",
+        delete: "Supprimer",
+        no_products: "Aucun produit",
+        add_product: "Ajouter",
+        edit: "Modifier",
+        bank_orders: "Banc de commandes",
+        no_orders: "Aucune commande",
+        total_revenue: "CA total",
+        product_added: "Produit ajouté",
+        product_modified: "Produit modifié",
+        product_deleted: "Produit supprimé",
+        fill_required: "Remplis les champs requis",
+        location_required: "La localisation est requise",
+        account_created_pending: "Compte créé et en attente de validation",
+        account_not_found: "Compte introuvable ou non validé",
+        incorrect_password: "Mot de passe incorrect",
+        client_validated: "Client validé",
+        client_refused: "Client refusé",
+        client_deleted: "Client supprimé",
+        product_not_found: "Produit introuvable",
+        title_price_required: "Titre et prix requis",
+        must_be_logged: "Tu dois être connecté et validé pour passer commande",
+        invoice_title: "Bon de commande",
+        order_saved: "Commande enregistrée",
+        close: "Fermer",
+        article: "Article",
+        qty: "Qté",
+        price: "Prix",
+        account_not_validated: "Compte non validé",
+        preview: "Aperçu client",
+        preview_sub: "Tester le site côté client sans se déconnecter",
+        preview_cart: "Panier (Aperçu)",
+        preview_cart_empty: "Panier aperçu vide",
+        confirm_preview: "Confirmer (Aperçu)",
+        preview_invoice_title: "Bon de commande (Aperçu)",
+        preview_not_saved: "Aperçu client — pas enregistré",
+        preview_btn: "Aperçu client"
+      },
+      ar: {
+        logo: "كورسا",
+        logoLetter: "ك",
+        marketplace: "سوق",
+        supplier_line: "المورد: Kamel Abiyad — 05 40 14 80 69",
+        welcome_title: "مرحبا بك في كورسا",
+        welcome_sub: "سجل الدخول للبدء",
+        connect: "🔑 تسجيل الدخول",
+        supplier: "⚙️ مورد",
+        supplier_protected: "(مساحة المورد محمية بكلمة مرور)",
+        account_registered: "تم تسجيل الحساب",
+        account_pending_description: "حسابك ({name}) قيد الانتظار لموافقة المورد.",
+        products: "المنتجات",
+        products_sub: "استعرض المنتجات المتاحة",
+        search_placeholder: "ابحث...",
+        cart: "عربة التسوق",
+        cart_empty: "العربة فارغة",
+        total: "الإجمالي",
+        order_btn: "أمر شراء",
+        clear_cart: "تفريغ",
+        account: "الحساب",
+        no_client_connected: "لا يوجد زبون متصل",
+        client_auth_btn: "تسجيل الدخول / إنشاء حساب",
+        client_auth_header: "تسجيل الدخول / إنشاء حساب",
+        have_account: "لدي حساب بالفعل",
+        create_account: "إنشاء حساب",
+        name: "الاسم",
+        surname: "اللقب",
+        phone: "الهاتف",
+        location: "الموقع",
+        save: "حفظ",
+        login: "تسجيل الدخول",
+        supplier_login_header: "تسجيل دخول المورد",
+        password: "كلمة المرور",
+        enter: "دخول",
+        cancel: "إلغاء",
+        supplier_panel: "لوحة المورد",
+        supplier_sub: "إدارة الزبائن والمنتجات والطلبات",
+        clients: "الزبائن",
+        products_btn: "المنتجات",
+        orders_btn: "سجل الطلبات",
+        clients_pending: "قيد الانتظار",
+        clients_validated: "معتمدون",
+        no_clients_pending: "لا يوجد زبائن قيد الانتظار",
+        no_clients_validated: "لا يوجد زبائن مُعتمدين",
+        accept: "قبول",
+        reject: "رفض",
+        delete: "حذف",
+        no_products: "لا يوجد منتجات",
+        add_product: "إضافة",
+        edit: "تعديل",
+        bank_orders: "سجل الطلبات",
+        no_orders: "لا يوجد طلبات",
+        total_revenue: "إجمالي المبيعات",
+        product_added: "تم إضافة المنتج",
+        product_modified: "تم تعديل المنتج",
+        product_deleted: "تم حذف المنتج",
+        fill_required: "املأ الحقول المطلوبة",
+        location_required: "الموقع مطلوب",
+        account_created_pending: "تم إنشاء الحساب وهو بانتظار التحقق",
+        account_not_found: "الحساب غير موجود أو غير معتمد",
+        incorrect_password: "كلمة المرور غير صحيحة",
+        client_validated: "تم اعتماد الزبون",
+        client_refused: "تم رفض الزبون",
+        client_deleted: "تم حذف الزبون",
+        product_not_found: "المنتج غير موجود",
+        title_price_required: "العنوان والسعر مطلوبان",
+        must_be_logged: "عليك تسجيل الدخول وأن يكون حسابك معتمدًا لإتمام الطلب",
+        invoice_title: "أمر شراء",
+        order_saved: "تم تسجيل الطلب",
+        close: "إغلاق",
+        article: "الصنف",
+        qty: "الكمية",
+        price: "السعر",
+        account_not_validated: "الحساب غير معتمد",
+        preview: "معاينة العميل",
+        preview_sub: "اختبار الموقع كزائر دون تسجيل الخروج",
+        preview_cart: "عربة (عرض)",
+        preview_cart_empty: "عربة العرض فارغة",
+        confirm_preview: "تأكيد (عرض)",
+        preview_invoice_title: "أمر شراء (عرض)",
+        preview_not_saved: "عرض العميل — غير محفوظ",
+        preview_btn: "معاينة الزبون"
+      }
+    };
+
+    const KEY_PRODUCTS = 'coursa_products_v2';
+    const KEY_CLIENTS = 'coursa_clients_v2';
+    const KEY_ORDERS = 'coursa_orders_v2';
+    const KEY_CURRENT = 'coursa_current_client_v2';
+    const KEY_LANG = 'coursa_lang_v1';
+
+    let products = JSON.parse(localStorage.getItem(KEY_PRODUCTS) || 'null') || [];
+    let clients = JSON.parse(localStorage.getItem(KEY_CLIENTS) || 'null') || [];
+    let orders = JSON.parse(localStorage.getItem(KEY_ORDERS) || 'null') || [];
+    let currentClient = JSON.parse(localStorage.getItem(KEY_CURRENT) || 'null');
+    let cart = JSON.parse(sessionStorage.getItem('coursa_cart') || '[]');
+    const SUPPLIER_PWD = '7 juillet 1993';
+
+    // langage courant
+    let currentLang = localStorage.getItem(KEY_LANG) || 'fr';
+
+    function t(key, vars) {
+      const dict = TRANSLATIONS[currentLang] || TRANSLATIONS['fr'];
+      let s = dict[key] || key;
+      if (vars && typeof vars === 'object') {
+        Object.keys(vars).forEach(k => { s = s.replace(`{${k}}`, vars[k]); });
+      }
+      return s;
+    }
+
+    function saveAll(){ localStorage.setItem(KEY_PRODUCTS, JSON.stringify(products)); localStorage.setItem(KEY_CLIENTS, JSON.stringify(clients)); localStorage.setItem(KEY_ORDERS, JSON.stringify(orders)); }
+
+    function formatPrice(n){ return n+' DA' }
+    function byId(id){ return document.getElementById(id) }
+
+    function applyLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem(KEY_LANG, lang);
+      document.documentElement.lang = (lang === 'ar') ? 'ar' : 'fr';
+      document.body.setAttribute('dir', (lang === 'ar') ? 'rtl' : 'ltr');
+
+      // static elements
+      byId('brandLogo').textContent = t('logo');
+      byId('brandLogoLetter').textContent = t('logoLetter');
+      byId('brandSub').textContent = t('marketplace');
+      byId('supplierHeader').textContent = t('supplier_line');
+
+      byId('welcomeTitle').textContent = t('welcome_title');
+      byId('welcomeSub').textContent = t('welcome_sub');
+      byId('connectBtn').textContent = t('connect');
+      byId('supplierBtnInit').textContent = t('supplier');
+      byId('supplierProtected').textContent = t('supplier_protected');
+
+      byId('productsTitle').textContent = t('products');
+      byId('productsSub').textContent = t('products_sub');
+      byId('searchInput').placeholder = t('search_placeholder');
+      byId('supplierBtnHeader').textContent = t('supplier');
+
+      byId('cartTitle').textContent = t('cart');
+      byId('totalLabel').textContent = t('total');
+      byId('orderBtn').textContent = t('order_btn');
+      byId('clearCartBtn').textContent = t('clear_cart');
+
+      byId('accountTitle').textContent = t('account');
+
+      byId('clientAuthHeader').textContent = t('client_auth_header');
+      byId('haveAccountBtn').textContent = t('have_account');
+      byId('createAccountBtn').textContent = t('create_account');
+      byId('closeClientFormBtn').textContent = t('close');
+
+      byId('supplierLoginHeader').textContent = t('supplier_login_header');
+      byId('supplierEnterBtn').textContent = t('enter');
+      byId('supplierCancelBtn').textContent = t('cancel');
+
+      byId('supplierPanelTitle').textContent = t('supplier_panel');
+      byId('supplierPanelSub').textContent = t('supplier_sub');
+      byId('supplierLogoutBtn').textContent = t('close'); // "Se déconnecter" better to use close translation (or add separate key)
+      // re-render dynamic UI
+      renderAccountBlock();
+      renderProducts();
+      renderCart();
+      renderSupplierPendingCount();
+      renderInitialPendingNotice();
+
+      // if supplier panel visible, refresh supplier tabs in current language
+      const sp = byId('supplierPanelSection');
+      if (sp && sp.style.display !== 'none') {
+        showSupplierTab('clients');
+      }
+
+      // update preview button if exists
+      const previewBtn = document.querySelector('#supplierPanelSection button[data-preview-btn]');
+      if (previewBtn) previewBtn.textContent = t('preview_btn');
+    }
+
+    function setLanguage(lang) {
+      applyLanguage(lang);
+    }
+
+    // --- init ---
+    function init(){
+      // defaults products
+      if(products.length===0){
+        // ensure images are arrays
+        products.push({id:'P-1',title:'T-shirt Coursa',price:1200,desc:'T-shirt confortable',images:[],created:Date.now()});
+        products.push({id:'P-2',title:'Casquette Coursa',price:800,desc:'Casquette ajustable',images:[],created:Date.now()});
+        saveAll();
+      } else {
+        // normalize images to arrays in case storage had single string
+        products = products.map(p => {
+          if(!p.images) p.images = [];
+          if(typeof p.images === 'string') p.images = p.images.split(',').map(x => x.trim()).filter(Boolean);
+          return p;
+        });
+      }
+      applyLanguage(currentLang);
+    }
+
+    // --- Client auth modal functions ---
+    function openClientAuth(){ byId('clientAuthModal').style.display='flex'; renderClientForm('exist'); }
+    function closeClientForm(){ byId('clientAuthModal').style.display='none'; const area = byId('clientFormArea'); area.innerHTML=''; }
+
+    function renderClientForm(mode){
+      const area = byId('clientFormArea');
+      if(mode==='new'){
+        area.innerHTML = `
+          <input class='input' id='c_nom' placeholder='${t('name')}'><br><br>
+          <input class='input' id='c_prenom' placeholder='${t('surname')}'><br><br>
+          <input class='input' id='c_tel' placeholder='${t('phone')}'><br><br>
+          <input class='input' id='c_loc' placeholder='${t('location')}'><br><br>
+          <button onclick="submitClient('new')">${t('save')}</button>
+        `;
+      } else {
+        area.innerHTML = `
+          <input class='input' id='c_nom' placeholder='${t('name')}'><br><br>
+          <input class='input' id='c_prenom' placeholder='${t('surname')}'><br><br>
+          <input class='input' id='c_tel' placeholder='${t('phone')}'><br><br>
+          <button onclick="submitClient('exist')">${t('login')}</button>
+        `;
+      }
+    }
+
+    function submitClient(mode){
+      const nom = byId('c_nom')?.value?.trim();
+      const prenom = byId('c_prenom')?.value?.trim();
+      const tel = byId('c_tel')?.value?.trim();
+      const loc = byId('c_loc')?.value?.trim();
+      if(!nom||!prenom||!tel){ alert(t('fill_required')); return; }
+      if(mode==='new' && !loc){ alert(t('location_required')); return; }
+      if(mode==='new'){
+        const client = {id:'C-'+Date.now(),nom,prenom,tel,loc,status:'pending',created:Date.now()};
+        clients.push(client);
+        saveAll();
+        sessionStorage.setItem('coursa_last_client', JSON.stringify({id:client.id,nom:client.nom,prenom:client.prenom}));
+        closeClientForm();
+        showPendingForClient();
+        renderSupplierPendingCount();
+        alert(t('account_created_pending'));
+      } else {
+        const found = clients.find(c=>c.nom===nom&&c.prenom===prenom&&c.tel===tel&&c.status==='validated');
+        if(found){
+          currentClient = found;
+          localStorage.setItem(KEY_CURRENT, JSON.stringify(currentClient));
+          closeClientForm();
+          enterHome();
+        } else {
+          alert(t('account_not_found'));
+        }
+      }
+    }
+
+    function showPendingForClient(){
+      showOnly('initialScreen');
+      const last = JSON.parse(sessionStorage.getItem('coursa_last_client')||'null');
+      if(last){
+        byId('pendingNotice').innerHTML = `<div style="background:#fff3cd;padding:12px;border-radius:8px;border:1px solid #ffeeba"><strong>${t('account_registered')}</strong><div class='muted'>${t('account_pending_description', {name: last.nom + ' ' + last.prenom})}</div><div style='margin-top:8px'><img src='data:image/svg+xml;utf8,${encodeURIComponent("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"160\" height=\"80\"><rect width=\"100%\" height=\"100%\" fill=\"#fff7e6\"/><text x=\"50%\" y=\"50%\" dominant-baseline=\"middle\" text-anchor=\"middle\" font-size=14 fill=\"#92400e\">En attente de validation</text></svg>")}' alt='pending'></div></div>`;
+      }
+    }
+
+    // --- Supplier login and panel ---
+    function openSupplierLogin(){ showOnly('supplierLoginSection'); byId('supplierPwd').value=''; renderSupplierPendingCount(); }
+    function closeSupplierLogin(){ showOnly('initialScreen'); }
+    function supplierLogin(){ const v = byId('supplierPwd').value.trim(); if(v===SUPPLIER_PWD){ showSupplierPanel(); } else { alert(t('incorrect_password')); } }
+
+    function showSupplierPanel(){ byId('supplierLoginSection').style.display='none'; byId('supplierPanelSection').style.display='block'; showSupplierTab('clients'); renderSupplierPendingCount(); }
+
+    function logoutSupplier(){ byId('supplierPanelSection').style.display='none'; showOnly('initialScreen'); }
+
+    function renderInitialPendingNotice(){ const pending = clients.filter(c=>c.status==='pending'); const el = byId('pendingNotice'); if(pending.length>0){ el.innerHTML = `<div style="background:#fff3cd;padding:12px;border-radius:8px;border:1px solid #ffeeba"><strong>${pending.length} nouveau(x) client(s) en attente</strong><div class='muted'>${t('supplier_protected')}</div></div>`; } else { el.innerHTML=''; } }
+
+    function renderSupplierPendingCount(){ const count = clients.filter(c=>c.status==='pending').length; const el = byId('pendingCount'); if(el) el.textContent = count; }
+
+    function showSupplierTab(tab){
+      const container = byId('supplierTabs');
+      if(tab==='clients'){
+        let html = `<h4>${t('clients')}</h4>`;
+        const pending = clients.filter(c=>c.status==='pending');
+        const validated = clients.filter(c=>c.status==='validated');
+        html += `<h5>${t('clients_pending')} (${pending.length})</h5>`;
+        if(pending.length===0) html += `<div class="muted">${t('no_clients_pending')}</div>`;
+        pending.forEach(c=>{
+          html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;border-bottom:1px solid #f1f5f9"><div><strong>${c.nom} ${c.prenom}</strong><div class='muted'>${c.tel} — ${c.loc}</div></div><div class="row"><button onclick="validateClient('${c.id}')">${t('accept')}</button><button class="input" onclick="rejectClient('${c.id}')">${t('reject')}</button></div></div>`;
+        });
+        html += `<h5 style='margin-top:12px'>${t('clients_validated')} (${validated.length})</h5>`;
+        if(validated.length===0) html += `<div class="muted">${t('no_clients_validated')}</div>`;
+        validated.forEach(c=>{
+          html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;border-bottom:1px solid #f1f5f9"><div><strong>${c.nom} ${c.prenom}</strong><div class='muted'>${c.tel} — ${c.loc}</div></div><div class="row"><button class='input' onclick="deleteClient('${c.id}')">${t('delete')}</button></div></div>`;
+        });
+        container.innerHTML = html;
+      } else if(tab==='products'){
+        let html = `<h4>${t('products')}</h4>`;
+        html += `<div style='display:flex;gap:8px;align-items:center'><input id='sp_title' class='input' placeholder='${t('name')}'><input id='sp_price' class='input' placeholder='${t('price') || "Prix"}'><input id='sp_desc' class='input' placeholder='${t('article') || "Description"}'><input type='file' id='sp_images' multiple accept='image/*'><button onclick='addProductFromSupplier()'>${t('add_product')}</button></div>`;
+        html += '<div style="margin-top:12px">';
+        if(products.length===0) html += `<div class="muted">${t('no_products')}</div>`;
+        products.forEach((p,i)=>{
+          html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;border-bottom:1px solid #f1f5f9"><div><strong>${p.title}</strong><div class='muted'>${p.price} DA — ${p.desc}</div></div><div class='row'><button onclick="editProduct('${p.id}')">${t('edit')}</button><button class='input' onclick="deleteProduct('${p.id}')">${t('delete')}</button></div></div>`;
+        });
+        html += '</div>';
+        container.innerHTML = html;
+      } else if(tab==='orders'){
+        let html = `<h4>${t('bank_orders')}</h4>`;
+        if(orders.length===0){ html += `<div class="muted">${t('no_orders')}</div>`; }
+        let totalAll = 0;
+        orders.forEach(o=>{
+          html += `<div id="order_row_${o.id}" style='border:1px solid #eef6ff;padding:10px;border-radius:8px;margin-bottom:8px'><div style='display:flex;justify-content:space-between'><div><strong>${o.client.nom} ${o.client.prenom}</strong><div class='muted'>${o.client.tel} — ${o.client.loc}</div></div><div class='muted'>${new Date(o.date).toLocaleString()}</div></div>`;
+          html += '<table style="margin-top:8px"><thead><tr><th>'+t('article')+'</th><th>'+t('qty')+'</th><th>'+t('price')+'</th></tr></thead><tbody>';
+          o.items.forEach(it=>{
+            html += `<tr><td>${it.title}</td><td>${it.qty}</td><td>${it.subtotal} DA</td></tr>`;
+          });
+          html += `</tbody></table><div style='display:flex;justify-content:space-between;align-items:center;margin-top:8px'><div></div><div style='text-align:right'><strong>${t('total')}: ${o.total} DA</strong></div></div>`;
+          // delete order button for supplier
+          html += `<div style='text-align:right;margin-top:8px'><button class='input' onclick="deleteOrder('${o.id}')">🗑️ Supprimer</button></div>`;
+          html += `</div>`;
+          totalAll += o.total;
+        });
+        html += `<div style='margin-top:12px;text-align:right'><strong>${t('total_revenue')}: ${totalAll} DA</strong></div>`;
+        container.innerHTML = html;
+      }
+    }
+
+    function deleteOrder(orderId){
+      if(!confirm('Supprimer cette commande ?')) return;
+      orders = orders.filter(o => o.id !== orderId);
+      saveAll();
+      // also remove from client-side stored orders if present
+      let clientOrders = JSON.parse(localStorage.getItem('coursa_client_orders') || '[]');
+      clientOrders = clientOrders.filter(o => o.id !== orderId);
+      localStorage.setItem('coursa_client_orders', JSON.stringify(clientOrders));
+      showSupplierTab('orders');
+      renderClientOrders();
+      alert('Commande supprimée');
+    }
+
+    function validateClient(id){ const idx = clients.findIndex(c=>c.id===id); if(idx>-1){ clients[idx].status='validated'; saveAll(); renderSupplierPendingCount(); renderInitialPendingNotice(); alert(t('client_validated')); } }
+    function rejectClient(id){ clients = clients.filter(c=>c.id!==id); saveAll(); renderSupplierPendingCount(); renderInitialPendingNotice(); alert(t('client_refused')); }
+    function deleteClient(id){ clients = clients.filter(c=>c.id!==id); saveAll(); renderSupplierPendingCount(); alert(t('client_deleted')); }
+
+    // --- products ---
+    function addProductFromSupplier(){
+      const ttitle = byId('sp_title').value.trim();
+      const pprice = Number(byId('sp_price').value)||0;
+      const d = byId('sp_desc').value.trim();
+      const files = byId('sp_images').files;
+      if(!ttitle || !pprice){ alert(t('title_price_required')); return; }
+      const readers = files && files.length ? Array.from(files).map(f=>readFileAsDataURL(f)) : [];
+      if(readers.length>0){
+        Promise.all(readers).then(dataUrls=>{
+          products.push({id:'P-'+Date.now(),title:ttitle,price:pprice,desc:d,images:dataUrls,created:Date.now()});
+          saveAll(); showSupplierTab('products'); renderProducts(); alert(t('product_added'));
+        });
+      } else {
+        products.push({id:'P-'+Date.now(),title:ttitle,price:pprice,desc:d,images:[],created:Date.now()});
+        saveAll(); showSupplierTab('products'); renderProducts(); alert(t('product_added'));
+      }
+    }
+    function readFileAsDataURL(file){ return new Promise((res,rej)=>{ const fr=new FileReader(); fr.onload=()=>res(fr.result); fr.onerror=rej; fr.readAsDataURL(file); }); }
+    function deleteProduct(id){ products = products.filter(p=>p.id!==id); saveAll(); showSupplierTab('products'); renderProducts(); alert(t('product_deleted')); }
+    function editProduct(id){ const p = products.find(x=>x.id===id); if(!p) return; const tnew = prompt(t('name'),p.title); if(tnew===null) return; const pr = prompt(t('price') || 'Prix',p.price); if(pr===null) return; const d = prompt(t('article') || 'Description',p.desc||''); p.title=tnew; p.price=Number(pr)||p.price; p.desc=d; saveAll(); showSupplierTab('products'); renderProducts(); alert(t('product_modified')); }
+
+    // --- helper for cart qty on product cards ---
+    function getCartQty(productId){
+      const it = cart.find(c=>c.id===productId);
+      return it ? it.qty : 0;
+    }
+
+    function increaseProductQtyInGrid(id){
+      addToCart(id,1);
+      renderProducts(); // to update qty badge and controls
+    }
+    function decreaseProductQtyInGrid(id){
+      const it = cart.find(c=>c.id===id);
+      if(!it) return;
+      it.qty = it.qty - 1;
+      if(it.qty <= 0){
+        cart = cart.filter(x=>x.id!==id);
+      }
+      sessionStorage.setItem('coursa_cart', JSON.stringify(cart));
+      renderCart();
+      renderProducts();
+    }
+
+    // --- products rendering ---
+    function renderProducts(){
+      const grid = byId('productsGrid');
+      grid.innerHTML='';
+      const q = (byId('searchInput')?.value||'').toLowerCase();
+      products.filter(p=>!q||p.title.toLowerCase().includes(q)||p.desc.toLowerCase().includes(q)).forEach(p=>{
+        const qtyInCart = getCartQty(p.id);
+        const el=document.createElement('div');
+        el.className='product';
+        // show main image + thumbnails under (all images)
+        const mainImg = (p.images && p.images.length) ? p.images[0] : placeholder(p.title);
+        let thumbsHtml = '';
+        if(p.images && p.images.length>1){
+          thumbsHtml = `<div class="productThumbs">` + p.images.map((img, idx) => `<img src="${img}" onclick="updateCardMainImage(this, '${p.id}', ${idx})">`).join('') + `</div>`;
+        }
+        el.innerHTML = `
+          <div class="card-img-wrap">
+            <img id="card_img_${p.id}" src='${mainImg}' onclick="openImageModalForProduct('${p.id}', 0)">
+          </div>
+          <h3>${p.title}</h3>
+          <div class='muted'>${p.desc||''}</div>
+          ${thumbsHtml}
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class='price'>${formatPrice(p.price)}</div>
+            <div class="qty-controls">
+              <button class="small-btn" onclick="decreaseProductQtyInGrid('${p.id}')">−</button>
+              <div style="min-width:30px;text-align:center">${qtyInCart}</div>
+              <button class="small-btn" onclick="increaseProductQtyInGrid('${p.id}')">+</button>
+            </div>
+          </div>
+          <div style='display:flex;gap:8px;margin-top:8px'>
+            <button onclick="openProductModal('${p.id}')">${(currentLang==='ar'?'عرض':'Voir')}</button>
+            <button onclick="addToCart('${p.id}',1)">${t('add_product')}</button>
+          </div>`;
+        grid.appendChild(el);
+      });
+      if(grid.innerHTML.trim()==='') grid.innerHTML = `<div class="muted">${t('no_products')}</div>`;
+    }
+
+    // helper used by clickable thumbnails on card to update the card main image
+    function updateCardMainImage(imgEl, productId, idx){
+      const cardImg = byId('card_img_'+productId);
+      if(cardImg) cardImg.src = imgEl.src;
+    }
+
+    function placeholder(ti){ return 'data:image/svg+xml;utf8,'+encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='600' height='400'><rect width='100%' height='100%' fill='#f6f8fb'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='24' fill='#cbd5e1'>${ti}</text></svg>`); }
+
+    // --- product modal ---
+    let modalProduct=null;
+    function openProductModal(id){
+      const p = products.find(x=>x.id===id);
+      if(!p) return;
+      modalProduct=p;
+      const main = p.images && p.images.length ? p.images[0] : placeholder(p.title);
+      byId('productMainImg').src = main;
+      byId('modalTitle').textContent = p.title;
+      byId('modalDesc').textContent = p.desc||'';
+      byId('modalQty').value = 1;
+      updateModalPrice();
+      const thumbs = byId('productThumbs');
+      thumbs.innerHTML='';
+      (p.images||[]).forEach((img,i)=>{
+        const im=document.createElement('img'); im.src=img; im.className='thumb'; im.onclick=()=>byId('productMainImg').src=img; thumbs.appendChild(im);
+      });
+      byId('modalAddBtn').textContent = t('add_product');
+      byId('closeProductModalBtn').textContent = t('close');
+      byId('productModal').style.display='flex';
+    }
+    function closeProductModal(){ byId('productModal').style.display='none'; isPreviewMode=false; }
+    function increaseModalQty(){ const q=Number(byId('modalQty').value)||1; byId('modalQty').value=q+1; updateModalPrice(); }
+    function decreaseModalQty(){ const q=Number(byId('modalQty').value)||1; if(q>1) byId('modalQty').value=q-1; updateModalPrice(); }
+    function updateModalPrice(){ if(!modalProduct) return; const q=Number(byId('modalQty').value)||1; byId('modalPrice').textContent = formatPrice(modalProduct.price*q); }
+    function addFromModal(){ const q=Number(byId('modalQty').value)||1; if(isPreviewMode){ addToPreviewCart(modalProduct.id,q); isPreviewMode=false; closeProductModal(); renderPreviewCart(); } else { addToCart(modalProduct.id,q); closeProductModal(); } }
+
+    // image modal (multi-image support + slide animations + zoom wheel/pinch)
+    let modalImageList = [];
+    let modalImageIndex = 0;
+    let imageScale = 1;
+    let lastTouchDist = null;
+    let wheelHandlerAttached = false;
+    let touchHandlersAttached = false;
+    const IMAGE_STAGE_ID = 'imageStage';
+
+    function openImageModalForProduct(productId, startIndex=0){
+      const p = products.find(x=>x.id===productId);
+      let imgs = [];
+      if(p && p.images && p.images.length) imgs = p.images.slice();
+      if(imgs.length===0){
+        // fallback: use placeholder for that product
+        imgs = [placeholder('Image')];
+      }
+      openImageModal(imgs, startIndex);
+    }
+
+    function openImageModal(images, startIndex=0){
+      modalImageList = images.slice();
+      modalImageIndex = Math.max(0, Math.min(startIndex, modalImageList.length-1));
+      imageScale = 1;
+      lastTouchDist = null;
+      const stage = byId(IMAGE_STAGE_ID);
+      stage.innerHTML = '';
+      // create main image element
+      const img = document.createElement('img');
+      img.src = modalImageList[modalImageIndex];
+      img.className = 'image-slide-active';
+      img.style.opacity = 1;
+      img.dataset.idx = modalImageIndex;
+      stage.appendChild(img);
+      byId('imageModal').style.display = 'flex';
+      attachImageHandlers(stage);
+    }
+
+    function attachImageHandlers(stage){
+      const img = stage.querySelector('img');
+      if(!img) return;
+      // wheel zoom on stage
+      if(!wheelHandlerAttached){
+        stage.addEventListener('wheel', imageWheelHandler, {passive:false});
+        wheelHandlerAttached = true;
+      }
+      if(!touchHandlersAttached){
+        stage.addEventListener('touchstart', imageTouchStart, {passive:false});
+        stage.addEventListener('touchmove', imageTouchMove, {passive:false});
+        stage.addEventListener('touchend', imageTouchEnd, {passive:false});
+        touchHandlersAttached = true;
+      }
+      // keyboard navigation
+      document.addEventListener('keydown', keyboardImageNav);
+    }
+
+    function detachImageHandlers(stage){
+      if(wheelHandlerAttached){
+        stage.removeEventListener('wheel', imageWheelHandler);
+        wheelHandlerAttached = false;
+      }
+      if(touchHandlersAttached){
+        stage.removeEventListener('touchstart', imageTouchStart);
+        stage.removeEventListener('touchmove', imageTouchMove);
+        stage.removeEventListener('touchend', imageTouchEnd);
+        touchHandlersAttached = false;
+      }
+      document.removeEventListener('keydown', keyboardImageNav);
+    }
+
+    // slide to next image with animation
+    function nextImage(){
+      if(modalImageList.length <= 1) return;
+      const stage = byId(IMAGE_STAGE_ID);
+      const old = stage.querySelector('img');
+      const nextIdx = (modalImageIndex + 1) % modalImageList.length;
+      const incoming = document.createElement('img');
+      incoming.src = modalImageList[nextIdx];
+      incoming.dataset.idx = nextIdx;
+      // prepare incoming for enter-right
+      incoming.className = '';
+      incoming.style.opacity = 0;
+      incoming.style.transform = 'translate(-40%,-50%)';
+      stage.appendChild(incoming);
+      // force reflow then animate
+      requestAnimationFrame(() => {
+        incoming.style.transition = 'transform 0.45s ease, opacity 0.38s ease';
+        old.style.transition = 'transform 0.45s ease, opacity 0.38s ease';
+        incoming.style.transform = 'translate(-50%,-50%)';
+        incoming.style.opacity = 1;
+        old.style.transform = 'translate(-60%,-50%)';
+        old.style.opacity = 0;
+        // after transition remove old
+        setTimeout(()=>{
+          if(old && old.parentNode) old.parentNode.removeChild(old);
+          modalImageIndex = nextIdx;
+          imageScale = 1;
+          setImageScale(1);
+        }, 420);
+      });
+    }
+
+    function prevImage(){
+      if(modalImageList.length <= 1) return;
+      const stage = byId(IMAGE_STAGE_ID);
+      const old = stage.querySelector('img');
+      const prevIdx = (modalImageIndex - 1 + modalImageList.length) % modalImageList.length;
+      const incoming = document.createElement('img');
+      incoming.src = modalImageList[prevIdx];
+      incoming.dataset.idx = prevIdx;
+      // prepare incoming for enter-left
+      incoming.className = '';
+      incoming.style.opacity = 0;
+      incoming.style.transform = 'translate(-60%,-50%)';
+      stage.appendChild(incoming);
+      requestAnimationFrame(() => {
+        incoming.style.transition = 'transform 0.45s ease, opacity 0.38s ease';
+        old.style.transition = 'transform 0.45s ease, opacity 0.38s ease';
+        incoming.style.transform = 'translate(-50%,-50%)';
+        incoming.style.opacity = 1;
+        old.style.transform = 'translate(-40%,-50%)';
+        old.style.opacity = 0;
+        setTimeout(()=>{
+          if(old && old.parentNode) old.parentNode.removeChild(old);
+          modalImageIndex = prevIdx;
+          imageScale = 1;
+          setImageScale(1);
+        }, 420);
+      });
+    }
+
+    function closeImageModal(){
+      const stage = byId(IMAGE_STAGE_ID);
+      detachImageHandlers(stage);
+      stage.innerHTML = '';
+      modalImageList = [];
+      modalImageIndex = 0;
+      imageScale = 1;
+      lastTouchDist = null;
+      byId('imageModal').style.display = 'none';
+    }
+
+    function resetImageZoom(){
+      imageScale = 1;
+      setImageScale(1);
+    }
+
+    function setImageScale(scale){
+      const stage = byId(IMAGE_STAGE_ID);
+      const img = stage.querySelector('img');
+      if(img) img.style.transform = `translate(-50%,-50%) scale(${scale})`;
+    }
+
+    function imageWheelHandler(e){
+      e.preventDefault();
+      const delta = -e.deltaY;
+      const step = delta > 0 ? 0.12 : -0.12;
+      imageScale = Math.min(5, Math.max(1, imageScale + step));
+      setImageScale(imageScale);
+    }
+
+    function getTouchDistance(touches){
+      const [a,b] = touches;
+      const dx = a.clientX - b.clientX;
+      const dy = a.clientY - b.clientY;
+      return Math.sqrt(dx*dx + dy*dy);
+    }
+    function imageTouchStart(e){
+      if(e.touches.length === 2){
+        lastTouchDist = getTouchDistance(e.touches);
+      }
+    }
+    function imageTouchMove(e){
+      if(e.touches.length === 2 && lastTouchDist){
+        e.preventDefault();
+        const cur = getTouchDistance(e.touches);
+        const factor = cur / lastTouchDist;
+        imageScale = Math.min(5, Math.max(1, imageScale * factor));
+        setImageScale(imageScale);
+        lastTouchDist = cur;
+      }
+    }
+    function imageTouchEnd(e){
+      if(e.touches.length < 2){
+        lastTouchDist = null;
+      }
+    }
+
+    function keyboardImageNav(e){
+      if(byId('imageModal').style.display !== 'flex') return;
+      if(e.key === 'ArrowLeft') prevImage();
+      if(e.key === 'ArrowRight') nextImage();
+      if(e.key === 'Escape') closeImageModal();
+    }
+
+    // --- cart ---
+    function addToCart(id,qty=1){ const p=products.find(x=>x.id===id); if(!p){ alert(t('product_not_found')); return; } const it=cart.find(x=>x.id===id); if(it){ it.qty+=qty } else { cart.push({id, title:p.title, price:p.price, qty}) } sessionStorage.setItem('coursa_cart', JSON.stringify(cart)); renderCart(); renderProducts(); }
+    function renderCart(){ const el=byId('cartList'); el.innerHTML=''; if(cart.length===0){ el.innerHTML=`<div class="muted">${t('cart_empty')}</div>`; byId('cartTotal').textContent='0 DA'; return; } const table=document.createElement('table'); const tbody=document.createElement('tbody'); let total=0; cart.forEach((c,i)=>{ const tr=document.createElement('tr'); tr.innerHTML = `<td>${c.title} x${c.qty}</td><td style="text-align:right">${c.price*c.qty} DA</td>`; tbody.appendChild(tr); total+=c.price*c.qty; }); table.appendChild(tbody); el.appendChild(table); byId('cartTotal').textContent = total+' DA'; }
+    function clearCart(){ cart=[]; sessionStorage.setItem('coursa_cart','[]'); renderCart(); renderProducts(); }
+
+    // --- checkout & orders ---
+    function openCartCheckout(){ if(!currentClient){ alert(t('must_be_logged')); return; } if(cart.length===0){ alert(t('cart_empty')); return; } showInvoiceModal(); }
+
+    // show invoice modal AS PREVIEW (do NOT save here). Save only on confirmInvoice().
+    function showInvoiceModal(){
+      const inv={id:'O-'+Date.now(),date:new Date().toISOString(),client:currentClient,items:cart.map(c=>({title:c.title,qty:c.qty,subtotal:c.qty*c.price,price:c.price})),total:cart.reduce((s,i)=>s+i.qty*i.price,0)};
+      // store pending invoice (preview) - will be saved on Confirm
+      window.pendingInvoice = inv;
+
+      const panel=byId('invoicePanel');
+      let html=`<div style='display:flex;justify-content:space-between;align-items:center'><div><h3>${t('invoice_title')}</h3><div class='muted'>${t('supplier_line')}</div></div><div>${new Date(inv.date).toLocaleString()}</div></div><hr>`;
+      html += `<div><strong>${t('account')}:</strong> ${inv.client.nom} ${inv.client.prenom} — ${inv.client.tel} — ${inv.client.loc}</div>`;
+      html += `<table style='margin-top:8px'><thead><tr><th>${t('article')}</th><th>${t('qty')}</th><th>${t('price')}</th></tr></thead><tbody>`;
+      inv.items.forEach(it=>{ html += `<tr><td>${it.title}</td><td>${it.qty}</td><td>${it.subtotal} DA</td></tr>` });
+      html += `</tbody></table><div style='text-align:right;margin-top:8px'><strong>${t('total')}: ${inv.total} DA</strong></div>`;
+
+      // Buttons: Confirm (save) and Cancel (close without saving)
+      html += `<div style='text-align:right;margin-top:12px'><button style="background:#16a34a;color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer" onclick='confirmInvoice()'>Confirmer</button> <button style="background:#f87171;color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer" onclick='closeInvoiceModal()'>Annuler</button></div>`;
+
+      panel.innerHTML = html;
+      byId('invoiceModal').style.display='flex';
+    }
+
+    function closeInvoiceModal(){ byId('invoiceModal').style.display='none'; }
+
+    // Confirm save (called when client clicks "Confirmer")
+    function confirmInvoice(){
+      if(!window.pendingInvoice) return;
+      if(!currentClient){ alert(t('must_be_logged')); return; }
+
+      // attach clientId for filtering client-side
+      window.pendingInvoice.clientId = currentClient.id;
+
+      // save to supplier orders (global orders)
+      orders.push(window.pendingInvoice);
+      saveAll();
+
+      // save to client-specific orders in localStorage
+      let clientOrders = JSON.parse(localStorage.getItem('coursa_client_orders') || '[]');
+      clientOrders.push(window.pendingInvoice);
+      localStorage.setItem('coursa_client_orders', JSON.stringify(clientOrders));
+
+      // clear cart (session)
+      sessionStorage.setItem('coursa_cart','[]');
+      cart = [];
+      renderCart();
+      renderProducts();
+
+      // update supplier UI
+      renderSupplierPendingCount();
+      showSupplierTab('orders');
+
+      // close invoice modal
+      closeInvoiceModal();
+
+      // refresh client orders list (under cart)
+      renderClientOrders();
+
+      // show success message just above client orders (i.e., under the cart)
+      const ordersList = byId('clientOrdersList');
+      const msg = document.createElement('div');
+      msg.textContent = "✅ Commande enregistrée avec succès !";
+      msg.style.background = "#ecfdf5";
+      msg.style.color = "#065f46";
+      msg.style.padding = "8px";
+      msg.style.borderRadius = "8px";
+      msg.style.marginBottom = "8px";
+      msg.style.textAlign = "center";
+      ordersList.prepend(msg);
+      setTimeout(()=> msg.remove(), 5000);
+
+      // remove pendingInvoice
+      delete window.pendingInvoice;
+    }
+
+    // --- account UI ---
+    function renderAccountBlock(){
+      const block=byId('accountBlock');
+      if(currentClient && currentClient.status==='validated'){
+        block.innerHTML = `<div><strong>${currentClient.nom} ${currentClient.prenom}</strong><div class='muted'>${currentClient.tel} — ${currentClient.loc}</div><div style='margin-top:8px'><button onclick='logoutClient()'>${t('close')}</button></div></div>`;
+        showOnly('homeScreen');
+      } else {
+        block.innerHTML = `<div class='muted'>${t('no_client_connected')}</div><div style='margin-top:8px'><button onclick='openClientAuth()'>${t('client_auth_btn')}</button></div>`;
+        showOnly('initialScreen');
+      }
+    }
+    function logoutClient(){ currentClient=null; localStorage.removeItem(KEY_CURRENT); renderAccountBlock(); showOnly('initialScreen'); }
+
+    function enterHome(){ currentClient = JSON.parse(localStorage.getItem(KEY_CURRENT) || JSON.stringify(currentClient)); if(!currentClient){ alert(t('no_client_connected')); return; } if(currentClient.status!=='validated'){ alert(t('account_not_validated')); return; } showOnly('homeScreen'); renderProducts(); renderCart(); renderClientOrders(); }
+
+    function showOnly(id){
+      const sections=['initialScreen','homeScreen','supplierLoginSection','supplierPanelSection'];
+      sections.forEach(s=>{ const el=byId(s); if(el) el.style.display='none'; });
+      const sel=byId(id); if(sel) sel.style.display='block';
+    }
+
+    // --- client load on page start ---
+    function tryLoadCurrent(){ const c=JSON.parse(localStorage.getItem(KEY_CURRENT) || 'null'); if(c){ const fresh=clients.find(x=>x.id===c.id); if(fresh) currentClient=fresh; else currentClient=c; } }
+
+    // init
+    init();
+    tryLoadCurrent();
+    renderProducts();
+    renderCart();
+    renderSupplierPendingCount();
+    renderInitialPendingNotice();
+    renderClientOrders(); // show client's orders (if any) on load
+
+    // expose functions globally used in html
+    window.openClientAuth=openClientAuth; window.openSupplierLogin=openSupplierLogin; window.supplierLogin=supplierLogin; window.closeSupplierLogin=closeSupplierLogin; window.logoutSupplier=logoutSupplier; window.showSupplierTab=showSupplierTab; window.addToCart=addToCart; window.renderProducts=renderProducts; window.renderCart=renderCart; window.clearCart=clearCart; window.openProductModal=openProductModal; window.closeProductModal=closeProductModal; window.increaseModalQty=increaseModalQty; window.decreaseModalQty=decreaseModalQty; window.addFromModal=addFromModal; window.openCartCheckout=openCartCheckout; window.readFileAsDataURL=readFileAsDataURL; window.deleteProduct=deleteProduct; window.validateClient=validateClient; window.rejectClient=rejectClient; window.deleteClient=deleteClient; window.editProduct=editProduct; window.logoutClient=logoutClient; window.enterHome=enterHome; window.renderInitialPendingNotice=renderInitialPendingNotice; window.increaseProductQtyInGrid=increaseProductQtyInGrid; window.decreaseProductQtyInGrid=decreaseProductQtyInGrid; window.deleteOrder=deleteOrder; window.resetImageZoom=resetImageZoom; window.openImageModal=openImageModal; window.openImageModalForProduct=openImageModalForProduct; window.nextImage=nextImage; window.prevImage=prevImage;
+
+    // --- Supplier Preview (client-side preview inside supplier panel) ---
+    let supplierPreviewCart = [];
+    let isPreviewMode = false;
+
+    function showPreviewTab(){
+      const container = byId('supplierTabs');
+      let html = `<h4>${t('preview')}</h4>`;
+      html += `<div style='display:flex;gap:8px;align-items:center;margin-bottom:8px'><div class="muted">${t('preview_sub')}</div></div>`;
+      html += `<div id='previewProducts'></div>`;
+      html += `<div style='margin-top:12px' id='previewCartArea'></div>`;
+      container.innerHTML = html;
+      renderPreviewProducts();
+      renderPreviewCart();
+    }
+
+    function renderPreviewProducts(){
+      const grid = byId('previewProducts'); grid.innerHTML = '';
+      products.forEach(p=>{
+        const el = document.createElement('div'); el.className='product'; el.style.marginBottom='8px';
+        el.innerHTML = `<img src='${p.images && p.images.length? p.images[0] : placeholder(p.title)}' onclick="openProductModalPreview('${p.id}')"><h3>${p.title}</h3><div class='muted'>${p.desc||''}</div><div class='price'>${formatPrice(p.price)}</div><div style='display:flex;gap:8px;margin-top:8px'><button onclick="openProductModalPreview('${p.id}')">${(currentLang==='ar'?'عرض':'Voir')}</button><button onclick="addToPreviewCart('${p.id}',1)">${t('add_product')}</button></div>`;
+        grid.appendChild(el);
+      });
+    }
+
+    function addToPreviewCart(id,qty=1){ const p = products.find(x=>x.id===id); if(!p){ alert(t('product_not_found')); return; } const it = supplierPreviewCart.find(x=>x.id===id); if(it){ it.qty += qty } else { supplierPreviewCart.push({id, title:p.title, price:p.price, qty}) } renderPreviewCart(); }
+
+    function renderPreviewCart(){ const area = byId('previewCartArea'); let html = `<h4>${t('preview_cart')}</h4>`; if(supplierPreviewCart.length===0){ html += `<div class="muted">${t('preview_cart_empty')}</div>`; } else { html += '<table><tbody>'; let total=0; supplierPreviewCart.forEach(it=>{ html += `<tr><td>${it.title} x${it.qty}</td><td style="text-align:right">${it.price*it.qty} DA</td></tr>`; total += it.price*it.qty; }); html += `</tbody></table><div style='text-align:right;margin-top:8px'><strong>${t('total')}: ${total} DA</strong></div><div style='margin-top:8px;display:flex;gap:8px'><button onclick="confirmPreviewOrder()">${t('confirm_preview')}</button><button onclick="clearPreviewCart()" class='input'>${t('clear_cart')}</button></div>`; }
+      area.innerHTML = html;
+    }
+
+    function clearPreviewCart(){ supplierPreviewCart = []; renderPreviewCart(); }
+
+    function confirmPreviewOrder(){ if(supplierPreviewCart.length===0){ alert(t('preview_cart_empty')); return; }
+      const previewOrder = {id:'PREV-'+Date.now(), date:new Date().toISOString(), client:{nom:'(Preview)',prenom:'(Preview)',tel:'',loc:'Preview'}, items:supplierPreviewCart.map(c=>({title:c.title,qty:c.qty,subtotal:c.price*c.qty})), total:supplierPreviewCart.reduce((s,i)=>s+i.qty*i.price,0)};
+      const panel = byId('invoicePanel'); let html = `<div style='display:flex;justify-content:space-between;align-items:center'><div><h3>${t('preview_invoice_title')}</h3><div class='muted'>${t('preview_not_saved')}</div></div><div>${new Date(previewOrder.date).toLocaleString()}</div></div><hr>`;
+      html += `<table style='margin-top:8px'><thead><tr><th>${t('article')}</th><th>${t('qty')}</th><th>${t('price')}</th></tr></thead><tbody>`;
+      previewOrder.items.forEach(it=>{ html += `<tr><td>${it.title}</td><td>${it.qty}</td><td>${it.subtotal} DA</td></tr>`; });
+      html += `</tbody></table><div style='text-align:right;margin-top:8px'><strong>${t('total')}: ${previewOrder.total} DA</strong></div>`;
+      html += `<div style='margin-top:12px;text-align:center'><img src='data:image/svg+xml;utf8,${encodeURIComponent("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"300\" height=\"80\"><rect width=\"100%\" height=\"100%\" fill=\"#e6f0ff\"/><text x=\"50%\" y=\"50%\" dominant-baseline=\"middle\" text-anchor=\"middle\" font-size=16 fill=\"#0b3d91\">Aperçu de bon de commande</text></svg>")}' alt='preview'></div>`;
+      panel.innerHTML = html + `<div style='text-align:right;margin-top:8px'><button onclick='closeInvoiceModal()'>${t('close')}</button></div>`;
+      byId('invoiceModal').style.display='flex';
+    }
+
+    // override open product modal for preview to set flag
+    function openProductModalPreview(id){ isPreviewMode = true; openProductModal(id); }
+    // ensure addFromModal supports preview mode - already defined above
+
+    // ensure supplier tabs include preview option
+    const _orig_showSupplierTab = window.showSupplierTab || function(tab){};
+    window.showSupplierTab = function(tab){ if(!tab) tab='clients'; if(tab==='preview') return showPreviewTab(); return _orig_showSupplierTab(tab); };
+
+    // add preview button to supplier panel header when panel is opened
+    const _orig_showSupplierPanel = showSupplierPanel;
+    showSupplierPanel = function(){ _orig_showSupplierPanel(); // inject preview button into panel controls
+      const controls = document.querySelector('#supplierPanelSection .row');
+      if(controls){
+        // avoid duplicate btn
+        if(!controls.querySelector('button[data-preview-btn]')){
+          const btn = document.createElement('button');
+          btn.className='input';
+          btn.setAttribute('data-preview-btn','1');
+          btn.textContent=t('preview_btn');
+          btn.onclick = ()=>showSupplierTab('preview');
+          controls.parentNode.querySelectorAll('.input').forEach(n=>n.style.marginRight='6px');
+          controls.appendChild(btn);
+        } else {
+          const existing = controls.querySelector('button[data-preview-btn]');
+          existing.textContent = t('preview_btn');
+        }
+      }
+    };
+
+    // --- Client orders rendering (client-side only, filtered by clientId) ---
+    function renderClientOrders(){
+      const list = byId('clientOrdersList');
+      let allOrders = JSON.parse(localStorage.getItem("coursa_client_orders") || "[]");
+      if(!currentClient){
+        list.innerHTML = "<div class='muted'>Connectez-vous pour voir vos commandes</div>";
+        return;
+      }
+      let clientOrders = allOrders.filter(o => o.clientId === currentClient.id);
+      if(clientOrders.length === 0){
+        list.innerHTML = "<div class='muted'>Aucune commande</div>";
+        return;
+      }
+      let html = "<table style='width:100%'><tbody>";
+      clientOrders.forEach(o=>{
+        html += `<tr><td><strong>${new Date(o.date).toLocaleDateString()}</strong></td><td>${o.items.map(it=>`${it.title} x${it.qty}`).join(", ")}</td><td style="text-align:right">${o.total} DA</td></tr>`;
+      });
+      html += "</tbody></table>";
+      list.innerHTML = html;
+    }
+
+  </script>
+</body>
+</html>
